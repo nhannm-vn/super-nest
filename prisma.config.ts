@@ -3,6 +3,8 @@
 import 'dotenv/config';
 import { defineConfig, env } from 'prisma/config';
 
+// File này sẽ được sử dụng để cấu hình Prisma trong dự án của bạn
+
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {

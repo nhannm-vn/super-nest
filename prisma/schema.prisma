@@ -4,7 +4,9 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
+// File này định nghĩa các model và mối quan hệ trong cơ sở dữ liệu sử dụng Prisma ORM.
+//ngoài ra còn định nghĩa các generator để tạo client Prisma và các kiểu JSON từ schema này.
+//quy định output type của client Prisma sẽ được đặt trong thư mục ../src/generated/prisma với định dạng module CommonJS (cjs).
 
 generator client {
   provider     = "prisma-client"
