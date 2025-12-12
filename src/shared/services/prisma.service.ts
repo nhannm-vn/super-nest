@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { Injectable } from '@nestjs/common'
+import { Injectable, OnModuleInit } from '@nestjs/common'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from 'src/generated/prisma/client'
 import envConfig from 'src/shared/config'
@@ -9,7 +9,7 @@ import envConfig from 'src/shared/config'
 //nghĩa là toàn bộ ứng dụng sẽ dùng chung một kết nối PrismaClient để tương tác với DB
 
 @Injectable()
-export class PrismaService extends PrismaClient {
+export class PrismaService extends PrismaClient implements OnModuleInit {
   constructor() {
     const adapter = new PrismaPg({
       connectionString: envConfig.DATABASE_URL,
