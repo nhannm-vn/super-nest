@@ -3,6 +3,7 @@ import { isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared
 import { HashingService } from 'src/shared/services/hashing.service'
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { TokenService } from 'src/shared/services/token.service'
+import { RolesService } from './roles.service'
 
 @Injectable()
 export class AuthService {
@@ -10,11 +11,14 @@ export class AuthService {
     private readonly hashingService: HashingService,
     private readonly prismaService: PrismaService,
     private readonly tokenService: TokenService,
+    // Giúp mình không phải query roleId mỗi lần đăng ký client
+    private readonly rolesService: RolesService,
   ) {}
   //**register phải dùng async vì nó gọi đến các hàm bất đồng bộ
   //**dùng async-await thì dùng try-catch
   async register(body: any) {
     try {
+      const clientRoleId = await this.rolesService.getClientRoleId()
       //hash password trước khi lưu vào db
       const hashedPassword = await this.hashingService.hash(body.password)
       //nhờ prisma service thực hiện
@@ -23,6 +27,12 @@ export class AuthService {
           email: body.email,
           password: hashedPassword,
           name: body.name,
+          phoneNumber: body.phoneNumber,
+          roleId: clientRoleId,
+        },
+        omit: {
+          password: true, //không trả về password cho client
+          totpSecret: true, //không trả về totpSecret cho client
         },
       })
       return user
@@ -36,7 +46,7 @@ export class AuthService {
     }
   }
 
-  async login(body: LoginBodyDTO) {
+  async login(body: any) {
     //Validate email có nằm trong database và password có khớp hay không
     const user = await this.prismaService.user.findUnique({
       where: {
