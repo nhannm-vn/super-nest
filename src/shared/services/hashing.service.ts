@@ -3,6 +3,8 @@ import { compare, hash } from 'bcrypt'
 //10 là mức mặc định hay dùng trong thực tế, cân bằng giữa tốc độ và bảo mật
 const saltRounds = 10
 
+//File này chứa service để hash mk và so sánh mk
+
 @Injectable()
 export class HashingService {
   hash(value: string) {
