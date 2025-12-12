@@ -9,7 +9,43 @@
 * 🟢 You can import this file directly.
 */
 
+export const OrderStatus = {
+  PENDING_CONFIRMATION: 'PENDING_CONFIRMATION',
+  PENDING_PICKUP: 'PENDING_PICKUP',
+  PENDING_DELIVERY: 'PENDING_DELIVERY',
+  DELIVERED: 'DELIVERED',
+  RETURNED: 'RETURNED',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const RegistrationCodeType = {
+  REGISTER: 'REGISTER',
+  FORGOT_PASSWORD: 'FORGOT_PASSWORD'
+} as const
+
+export type RegistrationCodeType = (typeof RegistrationCodeType)[keyof typeof RegistrationCodeType]
+
+
+export const UserStatus = {
+  ACTIVE: 'ACTIVE',
+  INACTIVE: 'INACTIVE',
+  BLOCKED: 'BLOCKED'
+} as const
+
+export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus]
+
+
+export const HTTPMethod = {
+  GET: 'GET',
+  POST: 'POST',
+  PUT: 'PUT',
+  DELETE: 'DELETE',
+  PATCH: 'PATCH',
+  OPTIONS: 'OPTIONS',
+  HEAD: 'HEAD'
+} as const
+
+export type HTTPMethod = (typeof HTTPMethod)[keyof typeof HTTPMethod]

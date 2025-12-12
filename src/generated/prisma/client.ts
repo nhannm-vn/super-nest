@@ -12,6 +12,8 @@
 
 import * as process from 'node:process'
 import * as path from 'node:path'
+import { fileURLToPath } from 'node:url'
+globalThis['__dirname'] = path.dirname(fileURLToPath(import.meta.url))
 
 import * as runtime from "@prisma/client/runtime/client"
 import * as $Enums from "./enums.js"
@@ -27,8 +29,8 @@ export * from "./enums.js"
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Languages
+ * const languages = await prisma.language.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -37,4 +39,113 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
-
+/**
+ * Model Language
+ * 
+ */
+export type Language = Prisma.LanguageModel
+/**
+ * Model User
+ * 
+ */
+export type User = Prisma.UserModel
+/**
+ * Model UserTranslation
+ * 
+ */
+export type UserTranslation = Prisma.UserTranslationModel
+/**
+ * Model VerificationCode
+ * 
+ */
+export type VerificationCode = Prisma.VerificationCodeModel
+/**
+ * Model RefreshToken
+ * 
+ */
+export type RefreshToken = Prisma.RefreshTokenModel
+/**
+ * Model Permission
+ * 
+ */
+export type Permission = Prisma.PermissionModel
+/**
+ * Model Role
+ * 
+ */
+export type Role = Prisma.RoleModel
+/**
+ * Model Product
+ * 
+ */
+export type Product = Prisma.ProductModel
+/**
+ * Model ProductTranslation
+ * 
+ */
+export type ProductTranslation = Prisma.ProductTranslationModel
+/**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel
+/**
+ * Model CategoryTranslation
+ * 
+ */
+export type CategoryTranslation = Prisma.CategoryTranslationModel
+/**
+ * Model Variant
+ * 
+ */
+export type Variant = Prisma.VariantModel
+/**
+ * Model VariantOption
+ * 
+ */
+export type VariantOption = Prisma.VariantOptionModel
+/**
+ * Model SKU
+ * 
+ */
+export type SKU = Prisma.SKUModel
+/**
+ * Model Brand
+ * 
+ */
+export type Brand = Prisma.BrandModel
+/**
+ * Model BrandTranslation
+ * 
+ */
+export type BrandTranslation = Prisma.BrandTranslationModel
+/**
+ * Model CartItem
+ * 
+ */
+export type CartItem = Prisma.CartItemModel
+/**
+ * Model ProductSKUSnapshot
+ * 
+ */
+export type ProductSKUSnapshot = Prisma.ProductSKUSnapshotModel
+/**
+ * Model Order
+ * 
+ */
+export type Order = Prisma.OrderModel
+/**
+ * Model Review
+ * 
+ */
+export type Review = Prisma.ReviewModel
+/**
+ * Model PaymentTransaction
+ * 
+ */
+export type PaymentTransaction = Prisma.PaymentTransactionModel
+/**
+ * Model Message
+ * 
+ */
+export type Message = Prisma.MessageModel

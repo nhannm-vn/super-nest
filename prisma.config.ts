@@ -6,10 +6,11 @@ import { defineConfig, env } from 'prisma/config'
 // File này sẽ được sử dụng để cấu hình Prisma trong dự án của bạn
 
 export default defineConfig({
-  datasource: {
-    url: env('DATABASE_URL'),
-  },
+  schema: 'prisma/schema.prisma',
   migrations: {
     path: 'prisma/migrations',
+  },
+  datasource: {
+    url: env('DATABASE_URL'),
   },
 })
