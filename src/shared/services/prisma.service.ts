@@ -2,7 +2,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaPg } from '@prisma/adapter-pg'
 import { PrismaClient } from 'src/generated/prisma/client'
-import envConfig from '../config'
+import envConfig from 'src/shared/config'
 
 // File này khai báo và xuất một thể hiện của PrismaClient sử dụng adapter PostgreSQL
 //các file khác sẽ import prisma từ đây để tương tác với cơ sở dữ liệu PostgreSQL

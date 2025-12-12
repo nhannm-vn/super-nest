@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.1.0",
   "engineVersion": "ab635e6b9d606fa5c8fb8b1a7f909c3c3c1c98ba",
   "activeProvider": "postgresql",
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client\"\n  output       = \"../src/generated/prisma\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\n// File này định nghĩa các model và mối quan hệ trong cơ sở dữ liệu sử dụng Prisma ORM.\n//ngoài ra còn định nghĩa các generator để tạo client Prisma và các kiểu JSON từ schema này.\n//quy định output type của client Prisma sẽ được đặt trong thư mục ../src/generated/prisma với định dạng module CommonJS (cjs).\n\n// *Note: mặc định kiểu dữ liệu trong Prisma sẽ được ánh xạ tự động dựa trên nhà cung cấp cơ sở dữ liệu (ở đây là postgresql).\n//nhưng nếu muốn tùy chỉnh kiểu dữ liệu cụ thể trong cơ sở dữ liệu, có thể sử dụng các chỉ thị @db.* như đã thấy trong schema này.\n//nhưng db đó phải có để hỗ trợ chuyển kiểu dữ liệu đó.\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Language {\n  id                   Int                   @id @default(autoincrement())\n  name                 String                @db.VarChar(500)\n  code                 String                @unique @db.VarChar(10)\n  userTranslations     UserTranslation[]\n  productTranslations  ProductTranslation[]\n  categoryTranslations CategoryTranslation[]\n  brandTranslations    BrandTranslation[]\n\n  createdById Int?\n  createdBy   User? @relation(\"LanguageCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"LanguageUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel User {\n  id          Int     @id @default(autoincrement())\n  email       String  @unique\n  name        String  @db.VarChar(500)\n  password    String  @db.VarChar(500)\n  phoneNumber String  @db.VarChar(50)\n  avatar      String? @db.VarChar(1000)\n\n  // Này có thể dùng để thực hiện chức năng quên mật khẩu, đăng nhập 2 bước\n  totpSecret                  String?               @unique @db.VarChar(1000)\n  status                      UserStatus            @default(INACTIVE)\n  roleId                      Int\n  role                        Role                  @relation(fields: [roleId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  refreshTokens               RefreshToken[]\n  carts                       CartItem[]\n  orders                      Order[]\n  reviews                     Review[]\n  createdPermissions          Permission[]          @relation(\"PermissionCreatedBy\")\n  updatedPermissions          Permission[]          @relation(\"PermissionUpdatedBy\")\n  createdRoles                Role[]                @relation(\"RoleCreatedBy\")\n  updatedRoles                Role[]                @relation(\"RoleUpdatedBy\")\n  createdProducts             Product[]             @relation(\"ProductCreatedBy\")\n  updatedProducts             Product[]             @relation(\"ProductUpdatedBy\")\n  createdCategories           Category[]            @relation(\"CategoryCreatedBy\")\n  updatedCategories           Category[]            @relation(\"CategoryUpdatedBy\")\n  createdVariants             Variant[]             @relation(\"VariantCreatedBy\")\n  updatedVariants             Variant[]             @relation(\"VariantUpdatedBy\")\n  createdVariantOptions       VariantOption[]       @relation(\"VariantOptionCreatedBy\")\n  updatedVariantOptions       VariantOption[]       @relation(\"VariantOptionUpdatedBy\")\n  createdSKUS                 SKU[]                 @relation(\"SKUCreatedBy\")\n  updatedSKUS                 SKU[]                 @relation(\"SKUUpdatedBy\")\n  createdLanguages            Language[]            @relation(\"LanguageCreatedBy\")\n  updatedLanguages            Language[]            @relation(\"LanguageUpdatedBy\")\n  createdBrands               Brand[]               @relation(\"BrandCreatedBy\")\n  updatedBrands               Brand[]               @relation(\"BrandUpdatedBy\")\n  createdProductTranslations  ProductTranslation[]  @relation(\"ProductTranslationCreatedBy\")\n  updatedProductTranslations  ProductTranslation[]  @relation(\"ProductTranslationUpdatedBy\")\n  createdCategoryTranslations CategoryTranslation[] @relation(\"CategoryTranslationCreatedBy\")\n  updatedCategoryTranslations CategoryTranslation[] @relation(\"CategoryTranslationUpdatedBy\")\n  createdBrandTranslations    BrandTranslation[]    @relation(\"BrandTranslationCreatedBy\")\n  updatedBrandTranslations    BrandTranslation[]    @relation(\"BrandTranslationUpdatedBy\")\n  createdOrders               Order[]               @relation(\"OrderCreatedBy\")\n  updatedOrders               Order[]               @relation(\"OrderUpdatedBy\")\n  createdUserTranslations     UserTranslation[]     @relation(\"UserTranslationCreatedBy\")\n  updatedUserTranslations     UserTranslation[]     @relation(\"UserTranslationUpdatedBy\")\n  userTranslations            UserTranslation[]     @relation(\"User\")\n  sentMessages                Message[]             @relation(\"FromUser\")\n  receivedMessages            Message[]             @relation(\"ToUser\")\n\n  // 1 user có thể tạo ra nhiều user khác\n  // 1 user chỉ có thể được tạo ra bởi 1 user khác\n  // Tự quan hệ 1-n\n  createdById  Int?\n  createdBy    User?  @relation(\"CreatorUsers\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  createdUsers User[] @relation(\"CreatorUsers\")\n\n  updatedById  Int?\n  updatedBy    User?  @relation(\"UpdatorUsers\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedUsers User[] @relation(\"UpdatorUsers\")\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel UserTranslation {\n  id          Int      @id @default(autoincrement())\n  userId      Int\n  user        User     @relation(\"User\", fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  languageId  Int\n  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  address     String?  @db.VarChar(500)\n  description String?\n\n  createdById Int?\n  createdBy   User? @relation(\"UserTranslationCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"UserTranslationUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel VerificationCode {\n  id    Int                  @id @default(autoincrement())\n  email String               @unique @db.VarChar(500)\n  code  String               @db.VarChar(50)\n  type  RegistrationCodeType\n\n  expiresAt DateTime\n  createdAt DateTime @default(now())\n\n  @@index([email, code, type])\n  @@index([expiresAt])\n}\n\nmodel RefreshToken {\n  token  String @unique @db.VarChar(1000)\n  userId Int\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n\n  expiresAt DateTime\n  createdAt DateTime @default(now())\n\n  @@index([expiresAt])\n}\n\nmodel Permission {\n  id          Int        @id @default(autoincrement())\n  name        String     @db.VarChar(500)\n  description String\n  path        String     @db.VarChar(1000)\n  method      HTTPMethod\n  roles       Role[]\n\n  createdById Int?\n  createdBy   User? @relation(\"PermissionCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"PermissionUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Role {\n  id          Int          @id @default(autoincrement())\n  name        String       @unique @db.VarChar(500)\n  description String\n  isActive    Boolean      @default(true)\n  permissions Permission[]\n  users       User[]\n\n  createdById Int?\n  createdBy   User? @relation(\"RoleCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"RoleUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Product {\n  id                  Int                  @id @default(autoincrement())\n  base_price          Float\n  virtual_price       Float\n  brandId             Int\n  brand               Brand                @relation(fields: [brandId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  images              String[]\n  categories          Category[]\n  variants            Variant[]\n  skus                SKU[]\n  reviews             Review[]\n  productTranslations ProductTranslation[]\n\n  createdById Int?\n  createdBy   User? @relation(\"ProductCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"ProductUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel ProductTranslation {\n  id          Int      @id @default(autoincrement())\n  productId   Int\n  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  languageId  Int\n  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  name        String   @db.VarChar(500)\n  description String\n\n  createdById Int?\n  createdBy   User? @relation(\"ProductTranslationCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"ProductTranslationUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Category {\n  id                   Int                   @id @default(autoincrement())\n  products             Product[]\n  parentCategoryId     Int?\n  parentCategory       Category?             @relation(\"ParentCategoryCategories\", fields: [parentCategoryId], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  childrenCategories   Category[]            @relation(\"ParentCategoryCategories\")\n  categoryTranslations CategoryTranslation[]\n\n  createdById Int?\n  createdBy   User? @relation(\"CategoryCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"CategoryUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel CategoryTranslation {\n  id          Int      @id @default(autoincrement())\n  categoryId  Int\n  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  languageId  Int\n  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  name        String   @db.VarChar(500)\n  description String\n\n  createdById Int?\n  createdBy   User? @relation(\"CategoryTranslationCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"CategoryTranslationUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Variant {\n  id             Int             @id @default(autoincrement())\n  name           String          @db.VarChar(500)\n  productId      Int\n  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  variantOptions VariantOption[]\n\n  createdById Int?\n  createdBy   User? @relation(\"VariantCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"VariantUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel VariantOption {\n  id        Int     @id @default(autoincrement())\n  value     String  @db.VarChar(500)\n  variantId Int\n  variant   Variant @relation(fields: [variantId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  skus      SKU[]\n\n  createdById Int?\n  createdBy   User? @relation(\"VariantOptionCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"VariantOptionUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel SKU {\n  id                  Int                  @id @default(autoincrement())\n  value               String               @db.VarChar(500)\n  price               Float\n  stock               Int\n  images              String[]\n  productId           Int\n  product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  variantOptions      VariantOption[]\n  cartItems           CartItem[]\n  productSKUSnapshots ProductSKUSnapshot[]\n\n  createdById Int?\n  createdBy   User? @relation(\"SKUCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"SKUUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Brand {\n  id                Int                @id @default(autoincrement())\n  logo              String             @db.VarChar(1000)\n  products          Product[]\n  brandTranslations BrandTranslation[]\n\n  createdById Int?\n  createdBy   User? @relation(\"BrandCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"BrandUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel BrandTranslation {\n  id          Int      @id @default(autoincrement())\n  brandId     Int\n  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  languageId  Int\n  language    Language @relation(fields: [languageId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  name        String   @db.VarChar(500)\n  description String\n\n  createdById Int?\n  createdBy   User? @relation(\"BrandTranslationCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"BrandTranslationUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel CartItem {\n  id       Int  @id @default(autoincrement())\n  quantity Int\n  skuId    Int\n  sku      SKU  @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  userId   Int\n  user     User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel ProductSKUSnapshot {\n  id          Int      @id @default(autoincrement())\n  productName String   @db.VarChar(500)\n  price       Float\n  images      String[]\n  skuValue    String   @db.VarChar(500)\n  skuId       Int?\n  sku         SKU?     @relation(fields: [skuId], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  orderId     Int?\n  order       Order?   @relation(fields: [orderId], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  createdAt DateTime @default(now())\n}\n\nmodel Order {\n  id     Int                  @id @default(autoincrement())\n  userId Int\n  user   User                 @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  status OrderStatus\n  items  ProductSKUSnapshot[]\n\n  createdById Int?\n  createdBy   User? @relation(\"OrderCreatedBy\", fields: [createdById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n  updatedById Int?\n  updatedBy   User? @relation(\"OrderUpdatedBy\", fields: [updatedById], references: [id], onDelete: SetNull, onUpdate: NoAction)\n\n  deletedAt DateTime?\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n}\n\nmodel Review {\n  id        Int     @id @default(autoincrement())\n  content   String\n  rating    Int\n  productId Int\n  product   Product @relation(fields: [productId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  userId    Int\n  user      User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel PaymentTransaction {\n  id                 Int      @id @default(autoincrement())\n  gateway            String   @db.VarChar(100)\n  transactionDate    DateTime @default(now())\n  accountNumber      String   @db.VarChar(100)\n  subAccount         String?  @db.VarChar(250)\n  amountIn           Int      @default(0)\n  amountOut          Int      @default(0)\n  accumulated        Int      @default(0)\n  code               String?  @db.VarChar(250)\n  transactionContent String?  @db.Text\n  referenceNumber    String?  @db.VarChar(255)\n  body               String?  @db.Text\n\n  createdAt DateTime @default(now())\n}\n\nmodel Message {\n  id         Int    @id @default(autoincrement())\n  fromUserId Int\n  fromUser   User   @relation(\"FromUser\", fields: [fromUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  toUserId   Int\n  toUser     User   @relation(\"ToUser\", fields: [toUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)\n  content    String\n\n  readAt    DateTime?\n  createdAt DateTime  @default(now())\n}\n\nenum OrderStatus {\n  PENDING_CONFIRMATION\n  PENDING_PICKUP\n  PENDING_DELIVERY\n  DELIVERED\n  RETURNED\n  CANCELLED\n}\n\nenum RegistrationCodeType {\n  REGISTER\n  FORGOT_PASSWORD\n}\n\nenum UserStatus {\n  ACTIVE\n  INACTIVE\n  BLOCKED\n}\n\nenum HTTPMethod {\n  GET\n  POST\n  PUT\n  DELETE\n  PATCH\n  OPTIONS\n  HEAD\n}\n\n// *Khi tiến hành tạo dữ liệu ví dụ (seed data) cho cơ sở dữ liệu,\n//trường user bắt buộc phải có roleId tham chiếu đến một vai trò (role) đã tồn tại trong bảng Role.\n//nên cần phải tạo role trước. Các cái createdById và updatedById phải để null enable \n//vì nếu không sẽ không biết role có trước hay user có trước để tham chiếu đến.\n\n//*Thường seed data để cho app chạy, tạo ra những role cơ bản để dự án có thể hoạt động được.\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -28,7 +28,7 @@ const config: runtime.GetPrismaClientConfig = {
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Language\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userTranslations\",\"kind\":\"object\",\"type\":\"UserTranslation\",\"relationName\":\"LanguageToUserTranslation\"},{\"name\":\"productTranslations\",\"kind\":\"object\",\"type\":\"ProductTranslation\",\"relationName\":\"LanguageToProductTranslation\"},{\"name\":\"categoryTranslations\",\"kind\":\"object\",\"type\":\"CategoryTranslation\",\"relationName\":\"CategoryTranslationToLanguage\"},{\"name\":\"brandTranslations\",\"kind\":\"object\",\"type\":\"BrandTranslation\",\"relationName\":\"BrandTranslationToLanguage\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"LanguageCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"LanguageUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phoneNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"avatar\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"totpSecret\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"UserStatus\"},{\"name\":\"roleId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"role\",\"kind\":\"object\",\"type\":\"Role\",\"relationName\":\"RoleToUser\"},{\"name\":\"refreshTokens\",\"kind\":\"object\",\"type\":\"RefreshToken\",\"relationName\":\"RefreshTokenToUser\"},{\"name\":\"carts\",\"kind\":\"object\",\"type\":\"CartItem\",\"relationName\":\"CartItemToUser\"},{\"name\":\"orders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToUser\"},{\"name\":\"reviews\",\"kind\":\"object\",\"type\":\"Review\",\"relationName\":\"ReviewToUser\"},{\"name\":\"createdPermissions\",\"kind\":\"object\",\"type\":\"Permission\",\"relationName\":\"PermissionCreatedBy\"},{\"name\":\"updatedPermissions\",\"kind\":\"object\",\"type\":\"Permission\",\"relationName\":\"PermissionUpdatedBy\"},{\"name\":\"createdRoles\",\"kind\":\"object\",\"type\":\"Role\",\"relationName\":\"RoleCreatedBy\"},{\"name\":\"updatedRoles\",\"kind\":\"object\",\"type\":\"Role\",\"relationName\":\"RoleUpdatedBy\"},{\"name\":\"createdProducts\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductCreatedBy\"},{\"name\":\"updatedProducts\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductUpdatedBy\"},{\"name\":\"createdCategories\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryCreatedBy\"},{\"name\":\"updatedCategories\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryUpdatedBy\"},{\"name\":\"createdVariants\",\"kind\":\"object\",\"type\":\"Variant\",\"relationName\":\"VariantCreatedBy\"},{\"name\":\"updatedVariants\",\"kind\":\"object\",\"type\":\"Variant\",\"relationName\":\"VariantUpdatedBy\"},{\"name\":\"createdVariantOptions\",\"kind\":\"object\",\"type\":\"VariantOption\",\"relationName\":\"VariantOptionCreatedBy\"},{\"name\":\"updatedVariantOptions\",\"kind\":\"object\",\"type\":\"VariantOption\",\"relationName\":\"VariantOptionUpdatedBy\"},{\"name\":\"createdSKUS\",\"kind\":\"object\",\"type\":\"SKU\",\"relationName\":\"SKUCreatedBy\"},{\"name\":\"updatedSKUS\",\"kind\":\"object\",\"type\":\"SKU\",\"relationName\":\"SKUUpdatedBy\"},{\"name\":\"createdLanguages\",\"kind\":\"object\",\"type\":\"Language\",\"relationName\":\"LanguageCreatedBy\"},{\"name\":\"updatedLanguages\",\"kind\":\"object\",\"type\":\"Language\",\"relationName\":\"LanguageUpdatedBy\"},{\"name\":\"createdBrands\",\"kind\":\"object\",\"type\":\"Brand\",\"relationName\":\"BrandCreatedBy\"},{\"name\":\"updatedBrands\",\"kind\":\"object\",\"type\":\"Brand\",\"relationName\":\"BrandUpdatedBy\"},{\"name\":\"createdProductTranslations\",\"kind\":\"object\",\"type\":\"ProductTranslation\",\"relationName\":\"ProductTranslationCreatedBy\"},{\"name\":\"updatedProductTranslations\",\"kind\":\"object\",\"type\":\"ProductTranslation\",\"relationName\":\"ProductTranslationUpdatedBy\"},{\"name\":\"createdCategoryTranslations\",\"kind\":\"object\",\"type\":\"CategoryTranslation\",\"relationName\":\"CategoryTranslationCreatedBy\"},{\"name\":\"updatedCategoryTranslations\",\"kind\":\"object\",\"type\":\"CategoryTranslation\",\"relationName\":\"CategoryTranslationUpdatedBy\"},{\"name\":\"createdBrandTranslations\",\"kind\":\"object\",\"type\":\"BrandTranslation\",\"relationName\":\"BrandTranslationCreatedBy\"},{\"name\":\"updatedBrandTranslations\",\"kind\":\"object\",\"type\":\"BrandTranslation\",\"relationName\":\"BrandTranslationUpdatedBy\"},{\"name\":\"createdOrders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderCreatedBy\"},{\"name\":\"updatedOrders\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderUpdatedBy\"},{\"name\":\"createdUserTranslations\",\"kind\":\"object\",\"type\":\"UserTranslation\",\"relationName\":\"UserTranslationCreatedBy\"},{\"name\":\"updatedUserTranslations\",\"kind\":\"object\",\"type\":\"UserTranslation\",\"relationName\":\"UserTranslationUpdatedBy\"},{\"name\":\"userTranslations\",\"kind\":\"object\",\"type\":\"UserTranslation\",\"relationName\":\"User\"},{\"name\":\"sentMessages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"FromUser\"},{\"name\":\"receivedMessages\",\"kind\":\"object\",\"type\":\"Message\",\"relationName\":\"ToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CreatorUsers\"},{\"name\":\"createdUsers\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CreatorUsers\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UpdatorUsers\"},{\"name\":\"updatedUsers\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UpdatorUsers\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"UserTranslation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"User\"},{\"name\":\"languageId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"language\",\"kind\":\"object\",\"type\":\"Language\",\"relationName\":\"LanguageToUserTranslation\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserTranslationCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserTranslationUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"VerificationCode\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"RegistrationCodeType\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"RefreshToken\":{\"fields\":[{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RefreshTokenToUser\"},{\"name\":\"expiresAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Permission\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"method\",\"kind\":\"enum\",\"type\":\"HTTPMethod\"},{\"name\":\"roles\",\"kind\":\"object\",\"type\":\"Role\",\"relationName\":\"PermissionToRole\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PermissionCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PermissionUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Role\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"permissions\",\"kind\":\"object\",\"type\":\"Permission\",\"relationName\":\"PermissionToRole\"},{\"name\":\"users\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RoleToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RoleCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"RoleUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Product\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"base_price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"virtual_price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"brandId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"brand\",\"kind\":\"object\",\"type\":\"Brand\",\"relationName\":\"BrandToProduct\"},{\"name\":\"images\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"categories\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryToProduct\"},{\"name\":\"variants\",\"kind\":\"object\",\"type\":\"Variant\",\"relationName\":\"ProductToVariant\"},{\"name\":\"skus\",\"kind\":\"object\",\"type\":\"SKU\",\"relationName\":\"ProductToSKU\"},{\"name\":\"reviews\",\"kind\":\"object\",\"type\":\"Review\",\"relationName\":\"ProductToReview\"},{\"name\":\"productTranslations\",\"kind\":\"object\",\"type\":\"ProductTranslation\",\"relationName\":\"ProductToProductTranslation\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ProductCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ProductUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"ProductTranslation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToProductTranslation\"},{\"name\":\"languageId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"language\",\"kind\":\"object\",\"type\":\"Language\",\"relationName\":\"LanguageToProductTranslation\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ProductTranslationCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ProductTranslationUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Category\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"products\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"CategoryToProduct\"},{\"name\":\"parentCategoryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"parentCategory\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"ParentCategoryCategories\"},{\"name\":\"childrenCategories\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"ParentCategoryCategories\"},{\"name\":\"categoryTranslations\",\"kind\":\"object\",\"type\":\"CategoryTranslation\",\"relationName\":\"CategoryToCategoryTranslation\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CategoryCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CategoryUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"CategoryTranslation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"categoryId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"category\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryToCategoryTranslation\"},{\"name\":\"languageId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"language\",\"kind\":\"object\",\"type\":\"Language\",\"relationName\":\"CategoryTranslationToLanguage\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CategoryTranslationCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CategoryTranslationUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Variant\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToVariant\"},{\"name\":\"variantOptions\",\"kind\":\"object\",\"type\":\"VariantOption\",\"relationName\":\"VariantToVariantOption\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"VariantCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"VariantUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"VariantOption\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"variantId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"variant\",\"kind\":\"object\",\"type\":\"Variant\",\"relationName\":\"VariantToVariantOption\"},{\"name\":\"skus\",\"kind\":\"object\",\"type\":\"SKU\",\"relationName\":\"SKUToVariantOption\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"VariantOptionCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"VariantOptionUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"SKU\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"value\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"stock\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"images\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToSKU\"},{\"name\":\"variantOptions\",\"kind\":\"object\",\"type\":\"VariantOption\",\"relationName\":\"SKUToVariantOption\"},{\"name\":\"cartItems\",\"kind\":\"object\",\"type\":\"CartItem\",\"relationName\":\"CartItemToSKU\"},{\"name\":\"productSKUSnapshots\",\"kind\":\"object\",\"type\":\"ProductSKUSnapshot\",\"relationName\":\"ProductSKUSnapshotToSKU\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SKUCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SKUUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Brand\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"logo\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"products\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"BrandToProduct\"},{\"name\":\"brandTranslations\",\"kind\":\"object\",\"type\":\"BrandTranslation\",\"relationName\":\"BrandToBrandTranslation\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"BrandCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"BrandUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"BrandTranslation\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"brandId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"brand\",\"kind\":\"object\",\"type\":\"Brand\",\"relationName\":\"BrandToBrandTranslation\"},{\"name\":\"languageId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"language\",\"kind\":\"object\",\"type\":\"Language\",\"relationName\":\"BrandTranslationToLanguage\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"BrandTranslationCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"BrandTranslationUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"CartItem\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"quantity\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"skuId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sku\",\"kind\":\"object\",\"type\":\"SKU\",\"relationName\":\"CartItemToSKU\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CartItemToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"ProductSKUSnapshot\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"productName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"price\",\"kind\":\"scalar\",\"type\":\"Float\"},{\"name\":\"images\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skuValue\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skuId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"sku\",\"kind\":\"object\",\"type\":\"SKU\",\"relationName\":\"ProductSKUSnapshotToSKU\"},{\"name\":\"orderId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"order\",\"kind\":\"object\",\"type\":\"Order\",\"relationName\":\"OrderToProductSKUSnapshot\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Order\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"OrderToUser\"},{\"name\":\"status\",\"kind\":\"enum\",\"type\":\"OrderStatus\"},{\"name\":\"items\",\"kind\":\"object\",\"type\":\"ProductSKUSnapshot\",\"relationName\":\"OrderToProductSKUSnapshot\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"OrderCreatedBy\"},{\"name\":\"updatedById\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"updatedBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"OrderUpdatedBy\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Review\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"rating\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToReview\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ReviewToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"PaymentTransaction\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"gateway\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"transactionDate\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"accountNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"subAccount\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"amountIn\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"amountOut\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"accumulated\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"transactionContent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"referenceNumber\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"body\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Message\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"fromUserId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"fromUser\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"FromUser\"},{\"name\":\"toUserId\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"toUser\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"ToUser\"},{\"name\":\"content\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"readAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -37,10 +37,10 @@ async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Modul
 }
 
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.js"),
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_bg.postgresql.mjs"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.js")
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_bg.postgresql.wasm-base64.mjs")
     return await decodeBase64AsWasm(wasm)
   }
 }
@@ -58,8 +58,8 @@ export interface PrismaClientConstructor {
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Users
-   * const users = await prisma.user.findMany()
+   * // Fetch zero or more Languages
+   * const languages = await prisma.language.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -80,8 +80,8 @@ export interface PrismaClientConstructor {
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Users
- * const users = await prisma.user.findMany()
+ * // Fetch zero or more Languages
+ * const languages = await prisma.language.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -174,7 +174,225 @@ export interface PrismaClient<
     extArgs: ExtArgs
   }>>
 
-    
+      /**
+   * `prisma.language`: Exposes CRUD operations for the **Language** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Languages
+    * const languages = await prisma.language.findMany()
+    * ```
+    */
+  get language(): Prisma.LanguageDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
+    * ```
+    */
+  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.userTranslation`: Exposes CRUD operations for the **UserTranslation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserTranslations
+    * const userTranslations = await prisma.userTranslation.findMany()
+    * ```
+    */
+  get userTranslation(): Prisma.UserTranslationDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.verificationCode`: Exposes CRUD operations for the **VerificationCode** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VerificationCodes
+    * const verificationCodes = await prisma.verificationCode.findMany()
+    * ```
+    */
+  get verificationCode(): Prisma.VerificationCodeDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.refreshToken`: Exposes CRUD operations for the **RefreshToken** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more RefreshTokens
+    * const refreshTokens = await prisma.refreshToken.findMany()
+    * ```
+    */
+  get refreshToken(): Prisma.RefreshTokenDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.permission`: Exposes CRUD operations for the **Permission** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Permissions
+    * const permissions = await prisma.permission.findMany()
+    * ```
+    */
+  get permission(): Prisma.PermissionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.role`: Exposes CRUD operations for the **Role** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Roles
+    * const roles = await prisma.role.findMany()
+    * ```
+    */
+  get role(): Prisma.RoleDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.product`: Exposes CRUD operations for the **Product** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Products
+    * const products = await prisma.product.findMany()
+    * ```
+    */
+  get product(): Prisma.ProductDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.productTranslation`: Exposes CRUD operations for the **ProductTranslation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductTranslations
+    * const productTranslations = await prisma.productTranslation.findMany()
+    * ```
+    */
+  get productTranslation(): Prisma.ProductTranslationDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.category`: Exposes CRUD operations for the **Category** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Categories
+    * const categories = await prisma.category.findMany()
+    * ```
+    */
+  get category(): Prisma.CategoryDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.categoryTranslation`: Exposes CRUD operations for the **CategoryTranslation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CategoryTranslations
+    * const categoryTranslations = await prisma.categoryTranslation.findMany()
+    * ```
+    */
+  get categoryTranslation(): Prisma.CategoryTranslationDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.variant`: Exposes CRUD operations for the **Variant** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Variants
+    * const variants = await prisma.variant.findMany()
+    * ```
+    */
+  get variant(): Prisma.VariantDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.variantOption`: Exposes CRUD operations for the **VariantOption** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more VariantOptions
+    * const variantOptions = await prisma.variantOption.findMany()
+    * ```
+    */
+  get variantOption(): Prisma.VariantOptionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.sKU`: Exposes CRUD operations for the **SKU** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SKUS
+    * const sKUS = await prisma.sKU.findMany()
+    * ```
+    */
+  get sKU(): Prisma.SKUDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.brand`: Exposes CRUD operations for the **Brand** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Brands
+    * const brands = await prisma.brand.findMany()
+    * ```
+    */
+  get brand(): Prisma.BrandDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.brandTranslation`: Exposes CRUD operations for the **BrandTranslation** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BrandTranslations
+    * const brandTranslations = await prisma.brandTranslation.findMany()
+    * ```
+    */
+  get brandTranslation(): Prisma.BrandTranslationDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.cartItem`: Exposes CRUD operations for the **CartItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CartItems
+    * const cartItems = await prisma.cartItem.findMany()
+    * ```
+    */
+  get cartItem(): Prisma.CartItemDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.productSKUSnapshot`: Exposes CRUD operations for the **ProductSKUSnapshot** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProductSKUSnapshots
+    * const productSKUSnapshots = await prisma.productSKUSnapshot.findMany()
+    * ```
+    */
+  get productSKUSnapshot(): Prisma.ProductSKUSnapshotDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.order`: Exposes CRUD operations for the **Order** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Orders
+    * const orders = await prisma.order.findMany()
+    * ```
+    */
+  get order(): Prisma.OrderDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.review`: Exposes CRUD operations for the **Review** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Reviews
+    * const reviews = await prisma.review.findMany()
+    * ```
+    */
+  get review(): Prisma.ReviewDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.paymentTransaction`: Exposes CRUD operations for the **PaymentTransaction** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentTransactions
+    * const paymentTransactions = await prisma.paymentTransaction.findMany()
+    * ```
+    */
+  get paymentTransaction(): Prisma.PaymentTransactionDelegate<ExtArgs, { omit: OmitOpts }>;
+
+  /**
+   * `prisma.message`: Exposes CRUD operations for the **Message** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Messages
+    * const messages = await prisma.message.findMany()
+    * ```
+    */
+  get message(): Prisma.MessageDelegate<ExtArgs, { omit: OmitOpts }>;
 }
 
 export function getPrismaClientClass(): PrismaClientConstructor {
