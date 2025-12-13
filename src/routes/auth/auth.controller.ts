@@ -1,11 +1,12 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
 import { AuthService } from './auth.service'
+import { RegisterBodyDTO } from './auth.dto'
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('register')
-  async register(@Body() body) {
+  async register(@Body() body: RegisterBodyDTO) {
     console.log('controller...')
     return this.authService.register(body)
   }
