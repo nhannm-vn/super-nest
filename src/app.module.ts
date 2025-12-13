@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common'
-import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ZodSerializerInterceptor } from 'nestjs-zod'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './routes/auth/auth.module'
 import CustomZodValidationPipe from './shared/pipes/custom-zod-validation.pipe'
 import { SharedModule } from './shared/shared.module'
+import { HttpExceptionFilter } from './shared/filters/http-exception.filter'
 
 @Module({
   imports: [SharedModule, AuthModule],
@@ -28,10 +29,10 @@ import { SharedModule } from './shared/shared.module'
       useClass: ZodSerializerInterceptor,
     },
     //*Đăng ký filter toàn cục để báo lỗi liên quan đến ZodSerializationException
-    // {
-    //   provide: APP_FILTER,
-    //   useClass: HttpExceptionFilter,
-    // },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
   ],
 })
 export class AppModule {}
