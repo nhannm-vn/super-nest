@@ -30,6 +30,7 @@ export class AuthService {
           phoneNumber: body.phoneNumber,
           roleId: clientRoleId,
         },
+        //Nhờ thằng này mà không trả về password và totpSecret cho client khi đăng ký thành công
         omit: {
           password: true, //không trả về password cho client
           totpSecret: true, //không trả về totpSecret cho client

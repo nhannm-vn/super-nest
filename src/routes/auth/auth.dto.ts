@@ -1,5 +1,28 @@
 import { createZodDto } from 'nestjs-zod'
+import { UserStatus } from 'src/generated/prisma/enums'
 import { z } from 'zod'
+
+//Serialize dữ liệu User trả về cho client
+//đối với Serialize thì không cần .email các kiểu
+//chỉ cần lượt bỏ những trường không cần thiết
+
+//*Lưu ý: khi validate dữ liệu trả về cho client thì không cần strict
+//vì thí dụ server gửi về có bị dư thì không gây lỗi
+//còn nếu strict thì dữ liệu dư sẽ bị lỗi vì yêu cầu dữ liệu phải đúng y như schema định nghĩa
+const UserSchema = z.object({
+  id: z.number(),
+  email: z.string(),
+  name: z.string(),
+  phoneNumber: z.string(),
+  avatar: z.string().nullable(),
+  status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.BLOCKED]),
+  roleId: z.number(),
+  createdById: z.number().nullable(),
+  updatedById: z.number().nullable(),
+  deletedAt: z.date().nullable(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
 
 //File này giúp định nghĩa các schema dùng để validate dữ liệu trong các route liên quan đến xác thực (auth)
 
@@ -25,3 +48,5 @@ const RegisterBodySchema = z
 
 //Khai báo class DTO dùng để validate dữ liệu đăng ký
 export class RegisterBodyDTO extends createZodDto(RegisterBodySchema) {}
+
+export class RegisterResDTO extends createZodDto(UserSchema) {}
