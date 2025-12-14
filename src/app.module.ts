@@ -4,9 +4,9 @@ import { ZodSerializerInterceptor } from 'nestjs-zod'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AuthModule } from './routes/auth/auth.module'
+import { HttpExceptionFilter } from './shared/filters/http-exception.filter'
 import CustomZodValidationPipe from './shared/pipes/custom-zod-validation.pipe'
 import { SharedModule } from './shared/shared.module'
-import { HttpExceptionFilter } from './shared/filters/http-exception.filter'
 
 @Module({
   imports: [SharedModule, AuthModule],
@@ -33,6 +33,12 @@ import { HttpExceptionFilter } from './shared/filters/http-exception.filter'
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    //Demo không cần dùng try-catch nữa vì đã có CatchEverythingFilter xử lý tất cả các lỗi
+    //những nhược điểm là lỗi sẽ không được chi tiết như khi dùng try-catch
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: CatchEverythingFilter,
+    // },
   ],
 })
 export class AppModule {}
