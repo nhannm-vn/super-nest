@@ -4,6 +4,7 @@ import { HashingService } from 'src/shared/services/hashing.service'
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { TokenService } from 'src/shared/services/token.service'
 import { RolesService } from './roles.service'
+import { RegisterBodyType } from './auth.model'
 
 @Injectable()
 export class AuthService {
@@ -16,7 +17,7 @@ export class AuthService {
   ) {}
   //**register phải dùng async vì nó gọi đến các hàm bất đồng bộ
   //**dùng async-await thì dùng try-catch
-  async register(body: any) {
+  async register(body: RegisterBodyType) {
     try {
       const clientRoleId = await this.rolesService.getClientRoleId()
       //hash password trước khi lưu vào db
