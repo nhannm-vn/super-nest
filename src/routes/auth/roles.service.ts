@@ -18,6 +18,7 @@ export class RolesService {
     //Đánh Muốn tìm theo name thì phải là findfirst.
     //còn em muốn dùng findUnique thì cột đó của em phải là khóa chính hoặc đánh unique mới dùng được.
     const role = await this.prismaService.role.findUniqueOrThrow({
+      //name là unique trong db của bảng role
       where: { name: RoleName.Client },
     })
 

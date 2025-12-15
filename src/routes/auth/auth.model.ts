@@ -1,11 +1,9 @@
+import { UserStatus } from 'src/shared/constants/auth.constant'
 import z from 'zod'
 
-export enum UserStatus {
-  ACTIVE = 'ACTIVE',
-  INACTIVE = 'INACTIVE',
-  BLOCKED = 'BLOCKED',
-}
+//Đây là file định nghĩa model cho User sử dụng zod để validate dữ liệu
 
+// Định nghĩa object schema cho User
 export const UserSchema = z.object({
   id: z.number(),
   email: z.string().pipe(z.email()),
@@ -14,7 +12,7 @@ export const UserSchema = z.object({
   phoneNumber: z.string().min(9).max(15),
   avatar: z.string().nullable(),
   totpSecret: z.string().nullable(),
-  status: z.enum(['ACTIVE', 'INACTIVE', 'BLOCKED']),
+  status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.BLOCKED]),
   roleId: z.number().positive(),
   createdById: z.number().nullable(),
   updatedById: z.number().nullable(),

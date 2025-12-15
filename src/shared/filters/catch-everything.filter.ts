@@ -2,6 +2,10 @@ import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus } from
 import { HttpAdapterHost } from '@nestjs/core'
 import { isUniqueConstraintPrismaError } from '../helpers'
 
+// File này dùng để giúp mình không cần bắt try catch ở từng chỗ nữa
+//thay vì bắt từng chỗ thì mình sẽ dùng filter này để bắt tất cả các lỗi không được xử lý
+//sau đó có thể custom lại response lỗi trả về cho phù hợp
+
 @Catch()
 export class CatchEverythingFilter implements ExceptionFilter {
   constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
