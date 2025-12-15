@@ -1,7 +1,10 @@
-import { UserStatus } from 'src/shared/constants/auth.constant'
+import { TypeOfVerificationCode, UserStatus } from 'src/shared/constants/auth.constant'
 import z from 'zod'
 
 //Đây là file định nghĩa model cho User sử dụng zod để validate dữ liệu
+//Những dữ liệu nào mà gửi lên thì thêm strict để không cho phép gửi thừa dữ liệu
+
+//****Còn các type dùng định nghĩa kiểu TypeScript trong file service và repository thì không cần strict
 
 // Định nghĩa object schema cho User
 export const UserSchema = z.object({
@@ -54,3 +57,24 @@ export const RegisterResSchema = UserSchema.omit({
 })
 
 export type RegisterResType = z.infer<typeof RegisterResSchema>
+
+// Đinh nghĩa schema cho Verification Body OTP khi đăng ký
+// Định nghĩa chung
+export const VerificationCode = z.object({
+  id: z.number(),
+  email: z.string().pipe(z.email()),
+  code: z.string().length(6),
+  type: z.enum([TypeOfVerificationCode.REGISTER, TypeOfVerificationCode.FORGOT_PASSWORD]),
+  expiresAt: z.date(),
+  createdAt: z.date(),
+})
+
+export type VerificationCodeType = z.infer<typeof VerificationCode>
+
+// Định nghĩa schema cho body gửi OTP, nghĩa là người dùng gửi lên gì để nhận OTP
+export const SendOTPBodySchema = VerificationCode.pick({
+  email: true,
+  type: true,
+}).strict()
+
+export type SendOTPBodyType = z.infer<typeof SendOTPBodySchema>
