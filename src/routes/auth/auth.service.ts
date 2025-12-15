@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common'
 import { isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
-import { RegisterBodyType } from './auth.model'
+import { RegisterBodyType, SendOTPBodyType } from './auth.model'
 import { AuthRepository } from './auth.repo'
 import { RolesService } from './roles.service'
 
@@ -39,6 +39,10 @@ export class AuthService {
       //500
       throw error
     }
+  }
+
+  sendOTP(body: SendOTPBodyType) {
+    return body
   }
 
   // async login(body: any) {
