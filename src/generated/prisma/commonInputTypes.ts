@@ -206,21 +206,21 @@ export type EnumUserStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumUserStatusFilter<$PrismaModel>
 }
 
-export type EnumRegistrationCodeTypeFilter<$PrismaModel = never> = {
-  equals?: $Enums.RegistrationCodeType | Prisma.EnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRegistrationCodeTypeFilter<$PrismaModel> | $Enums.RegistrationCodeType
+export type EnumVerificationCodeTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.VerificationCodeType | Prisma.EnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVerificationCodeTypeFilter<$PrismaModel> | $Enums.VerificationCodeType
 }
 
-export type EnumRegistrationCodeTypeWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.RegistrationCodeType | Prisma.EnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRegistrationCodeTypeWithAggregatesFilter<$PrismaModel> | $Enums.RegistrationCodeType
+export type EnumVerificationCodeTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VerificationCodeType | Prisma.EnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVerificationCodeTypeWithAggregatesFilter<$PrismaModel> | $Enums.VerificationCodeType
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumRegistrationCodeTypeFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumRegistrationCodeTypeFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVerificationCodeTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVerificationCodeTypeFilter<$PrismaModel>
 }
 
 export type EnumHTTPMethodFilter<$PrismaModel = never> = {
@@ -502,21 +502,21 @@ export type NestedEnumUserStatusWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumUserStatusFilter<$PrismaModel>
 }
 
-export type NestedEnumRegistrationCodeTypeFilter<$PrismaModel = never> = {
-  equals?: $Enums.RegistrationCodeType | Prisma.EnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRegistrationCodeTypeFilter<$PrismaModel> | $Enums.RegistrationCodeType
+export type NestedEnumVerificationCodeTypeFilter<$PrismaModel = never> = {
+  equals?: $Enums.VerificationCodeType | Prisma.EnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVerificationCodeTypeFilter<$PrismaModel> | $Enums.VerificationCodeType
 }
 
-export type NestedEnumRegistrationCodeTypeWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.RegistrationCodeType | Prisma.EnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  in?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  notIn?: $Enums.RegistrationCodeType[] | Prisma.ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumRegistrationCodeTypeWithAggregatesFilter<$PrismaModel> | $Enums.RegistrationCodeType
+export type NestedEnumVerificationCodeTypeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.VerificationCodeType | Prisma.EnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  in?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.VerificationCodeType[] | Prisma.ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumVerificationCodeTypeWithAggregatesFilter<$PrismaModel> | $Enums.VerificationCodeType
   _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumRegistrationCodeTypeFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumRegistrationCodeTypeFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumVerificationCodeTypeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumVerificationCodeTypeFilter<$PrismaModel>
 }
 
 export type NestedEnumHTTPMethodFilter<$PrismaModel = never> = {

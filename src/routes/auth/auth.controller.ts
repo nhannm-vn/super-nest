@@ -14,9 +14,10 @@ export class AuthController {
     return await this.authService.register(body)
   }
 
+  //Khai báo route gửi OTP
   @Post('otp')
-  sendOTP(@Body() body: SendOTPBodyDTO) {
-    return this.authService.sendOTP(body)
+  async sendOTP(@Body() body: SendOTPBodyDTO) {
+    return await this.authService.sendOTP(body)
   }
 
   // @Post('login')

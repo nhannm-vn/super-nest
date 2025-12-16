@@ -1,31 +1,11 @@
-import { TypeOfVerificationCode, UserStatus } from 'src/shared/constants/auth.constant'
+import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
+import { UserSchema } from 'src/shared/models/shared-user.model'
 import z from 'zod'
 
 //Đây là file định nghĩa model cho User sử dụng zod để validate dữ liệu
 //Những dữ liệu nào mà gửi lên thì thêm strict để không cho phép gửi thừa dữ liệu
 
 //****Còn các type dùng định nghĩa kiểu TypeScript trong file service và repository thì không cần strict
-
-// Định nghĩa object schema cho User
-export const UserSchema = z.object({
-  id: z.number(),
-  email: z.string().pipe(z.email()),
-  name: z.string().min(1).max(100),
-  password: z.string().min(6).max(100),
-  phoneNumber: z.string().min(9).max(15),
-  avatar: z.string().nullable(),
-  totpSecret: z.string().nullable(),
-  status: z.enum([UserStatus.ACTIVE, UserStatus.INACTIVE, UserStatus.BLOCKED]),
-  roleId: z.number().positive(),
-  createdById: z.number().nullable(),
-  updatedById: z.number().nullable(),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-
-// Định nghĩa kiểu TypeScript cho User dựa trên schema Zod
-export type UserType = z.infer<typeof UserSchema>
 
 // Định nghĩa schema cho dữ liệu đăng ký lúc gửi lên
 export const RegisterBodySchema = UserSchema.pick({

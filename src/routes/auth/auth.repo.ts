@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/shared/services/prisma.service'
-import { RegisterBodyType, UserType } from './auth.model'
+import { RegisterBodyType, VerificationCodeType } from './auth.model'
+import { UserType } from 'src/shared/models/shared-user.model'
 
 //Thực chất thì thằng này là service nhưng mình tách riêng ra để dễ quản lý
 //Mấy thằng nào mà service để gọi theo dependency injection thì phải có @Injectable()
@@ -26,6 +27,13 @@ export class AuthRepository {
         password: true,
         totpSecret: true,
       },
+    })
+  }
+
+  // Tạo verify otp, repo này chỉ chuyên về thao tác với db, gọi tới prismaService
+  async createVerificationCode(payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) {
+    return this.prismaService.verificationCode.create({
+      data: payload,
     })
   }
 }
