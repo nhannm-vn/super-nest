@@ -14,5 +14,5 @@ export function isNotFoundPrismaError(error: any): error is Prisma.PrismaClientK
 
 //Function tạo mã OTP
 export const generateOTP = () => {
-  return randomInt(100000, 1000000).toString()
+  return String(randomInt(0, 1000000)).padStart(6, '0')
 }
