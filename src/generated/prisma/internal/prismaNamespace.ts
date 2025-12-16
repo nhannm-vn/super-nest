@@ -2501,16 +2501,16 @@ export type ListEnumUserStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$P
 
 
 /**
- * Reference to a field of type 'RegistrationCodeType'
+ * Reference to a field of type 'VerificationCodeType'
  */
-export type EnumRegistrationCodeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RegistrationCodeType'>
+export type EnumVerificationCodeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationCodeType'>
     
 
 
 /**
- * Reference to a field of type 'RegistrationCodeType[]'
+ * Reference to a field of type 'VerificationCodeType[]'
  */
-export type ListEnumRegistrationCodeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RegistrationCodeType[]'>
+export type ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'VerificationCodeType[]'>
     
 
 

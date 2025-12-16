@@ -1,9 +1,13 @@
-import { ConflictException, Injectable } from '@nestjs/common'
-import { isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import { Injectable, UnprocessableEntityException } from '@nestjs/common'
+import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { RegisterBodyType, SendOTPBodyType } from './auth.model'
 import { AuthRepository } from './auth.repo'
 import { RolesService } from './roles.service'
+import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
+import { addMilliseconds } from 'date-fns'
+import ms, { StringValue } from 'ms'
+import envConfig from 'src/shared/config'
 
 @Injectable()
 export class AuthService {
@@ -13,6 +17,8 @@ export class AuthService {
     private readonly rolesService: RolesService,
     // Repository
     private readonly authRepository: AuthRepository,
+    // Repository shared dùng chung cho nhiều module
+    private readonly sharedUserRepository: SharedUserRepository,
   ) {}
   //**register phải dùng async vì nó gọi đến các hàm bất đồng bộ
   //**dùng async-await thì dùng try-catch
@@ -34,116 +40,46 @@ export class AuthService {
     } catch (error) {
       //NestJS đã có sẵn ConflictException (HTTP 409) để báo lỗi trùng dữ liệu.
       if (isUniqueConstraintPrismaError(error)) {
-        throw new ConflictException('Email already exists')
+        throw new UnprocessableEntityException([
+          {
+            //Những thông tin này phải format theo zod validate cho đồng nhất
+            message: 'Email is already registered',
+            path: 'email',
+          },
+        ])
       }
       //500
       throw error
     }
   }
 
-  sendOTP(body: SendOTPBodyType) {
-    return body
+  async sendOTP(body: SendOTPBodyType) {
+    //1. Kiểm tra email đã tồn tại trong hệ thống chưa
+    const user = await this.sharedUserRepository.findUnique({
+      email: body.email,
+    })
+    //Nếu tồn tại thì báo lỗi vì không thể gửi OTP cho email đã đăng ký
+    if (user) {
+      //Mình throw lỗi này để biết cụ thể trừng nào đang bị lỗi
+      throw new UnprocessableEntityException([
+        {
+          //Những thông tin này phải format theo zod validate cho đồng nhất
+          message: 'Email is already registered',
+          path: 'email',
+        },
+      ])
+    }
+    //2. Tạo mã OTP
+    const code = generateOTP()
+    //3. Lưu mã OTP vào database, gọi tới repository để thao tác với db
+    const verificationCode = await this.authRepository.createVerificationCode({
+      email: body.email,
+      code,
+      type: body.type,
+      // Thằng thư viện date-fns để cộng thêm thời gian | còn ms để chuyển chuỗi thời gian thành ms
+      //nghĩa là vd "5m" => 300000 ms
+      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN as StringValue)),
+    })
+    return verificationCode
   }
-
-  // async login(body: any) {
-  //   //Validate email có nằm trong database và password có khớp hay không
-  //   const user = await this.prismaService.user.findUnique({
-  //     where: {
-  //       email: body.email,
-  //     },
-  //   })
-
-  //   if (!user) {
-  //     throw new UnauthorizedException('Account is not exist')
-  //   }
-
-  //   const isPasswordMatch = await this.hashingService.compare(body.password, user.password)
-  //   if (!isPasswordMatch) {
-  //     //Mình muốn 422 để người dùng thấy dưới ô nhập password luôn
-  //     throw new UnprocessableEntityException([
-  //       {
-  //         field: 'password',
-  //         error: 'Password is incorrect',
-  //       },
-  //     ])
-  //   }
-
-  //   const tokens = await this.generateTokens({ userId: user.id })
-  //   //Sau khi xác thực email và password thành công thì tiến hành ký 2 token
-  //   //và trả ra cho người dùng
-  //   return tokens
-  // }
-
-  // //Method giúp ký token và lưu vào trong database
-  // async generateTokens(payload: { userId: number }) {
-  //   const [accessToken, refreshToken] = await Promise.all([
-  //     this.tokenService.signAccessToken(payload),
-  //     this.tokenService.signRefreshToken(payload),
-  //   ])
-  //   //*Decode để lấy thời điểm hết hạn
-  //   const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
-  //   //Lưu vào trong db
-  //   await this.prismaService.refreshToken.create({
-  //     data: {
-  //       token: refreshToken,
-  //       userId: payload.userId,
-  //       expiresAt: new Date(decodedRefreshToken.exp * 1000),
-  //     },
-  //   })
-
-  //   return { accessToken, refreshToken }
-  // }
-
-  // async refreshToken(refreshToken: string) {
-  //   try {
-  //     //1. Kiểm tra token có đúng và hợp lệ hay không
-  //     const { userId } = await this.tokenService.verifyRefreshToken(refreshToken)
-  //     //2. Kiểm tra refreshToken có tồn tại trong database không
-  //     //findUniqueOrThrow: thằng này khi có lỗi sẽ throw ra lỗi còn thằng findUnique
-  //     //chỉ return về null
-  //     await this.prismaService.refreshToken.findUniqueOrThrow({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     })
-  //     //3. Tiến hành xóa token cũ
-  //     await this.prismaService.refreshToken.delete({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     })
-  //     //4. Tiến hành tạo mới access_token và refresh_token
-  //     return await this.generateTokens({ userId: userId })
-  //   } catch (error) {
-  //     //Trường hợp đã refreshToken rồi hãy thông báo cho user biết
-  //     //refreshToken đã bị đánh cắp (nghĩa là refreshToken của họ không còn trong db)
-  //     if (isNotFoundPrismaError(error)) {
-  //       throw new UnauthorizedException('Refresh token has been revoked')
-  //     }
-  //     //Dành cho các lỗi chung chung
-  //     throw new UnauthorizedException()
-  //   }
-  // }
-
-  // async logout(refreshToken: string) {
-  //   try {
-  //     //1. Kiểm tra token có đúng và hợp lệ hay không
-  //     await this.tokenService.verifyRefreshToken(refreshToken)
-  //     //2. Xóa refreshToken trong database
-  //     await this.prismaService.refreshToken.delete({
-  //       where: {
-  //         token: refreshToken,
-  //       },
-  //     })
-  //     return { message: 'Logout successfully' }
-  //   } catch (error) {
-  //     //Trường hợp đã refreshToken rồi hãy thông báo cho user biết
-  //     //refreshToken đã bị đánh cắp (nghĩa là refreshToken của họ không còn trong db)
-  //     if (isNotFoundPrismaError(error)) {
-  //       throw new UnauthorizedException('Refresh token has been revoked')
-  //     }
-  //     //Dành cho các lỗi chung chung
-  //     throw new UnauthorizedException()
-  //   }
-  // }
 }

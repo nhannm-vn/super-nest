@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto'
 import { Prisma } from 'src/generated/prisma/client'
 
 //type predicate: dự đoán kiểu dữ liệu
@@ -9,4 +10,9 @@ export function isUniqueConstraintPrismaError(error: any): error is Prisma.Prism
 
 export function isNotFoundPrismaError(error: any): error is Prisma.PrismaClientKnownRequestError {
   return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025'
+}
+
+//Function tạo mã OTP
+export const generateOTP = () => {
+  return randomInt(100000, 1000000).toString()
 }

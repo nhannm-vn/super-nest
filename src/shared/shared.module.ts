@@ -7,10 +7,11 @@ import { APIKeyGuard } from './guards/api-key.guard'
 import { AuthenticationGuard } from './guards/authentication.guard'
 import { APP_GUARD } from '@nestjs/core'
 import { PrismaService } from './services/prisma.service'
+import { SharedUserRepository } from './repositories/shared-user.repo'
 //File này mình sẽ để chế độ global cho toàn app thấy được luôn
 //mình sẽ import services vào đây
 
-const sharedServices = [PrismaService, HashingService, TokenService]
+const sharedServices = [PrismaService, HashingService, TokenService, SharedUserRepository]
 
 @Global()
 @Module({

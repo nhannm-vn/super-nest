@@ -21,12 +21,12 @@ export const OrderStatus = {
 export type OrderStatus = (typeof OrderStatus)[keyof typeof OrderStatus]
 
 
-export const RegistrationCodeType = {
+export const VerificationCodeType = {
   REGISTER: 'REGISTER',
   FORGOT_PASSWORD: 'FORGOT_PASSWORD'
 } as const
 
-export type RegistrationCodeType = (typeof RegistrationCodeType)[keyof typeof RegistrationCodeType]
+export type VerificationCodeType = (typeof VerificationCodeType)[keyof typeof VerificationCodeType]
 
 
 export const UserStatus = {
