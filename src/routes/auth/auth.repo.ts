@@ -32,8 +32,22 @@ export class AuthRepository {
 
   // Tạo verify otp, repo này chỉ chuyên về thao tác với db, gọi tới prismaService
   async createVerificationCode(payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) {
-    return this.prismaService.verificationCode.create({
-      data: payload,
+    //**Mình phải xử lí trường hợp nếu như người dùng gửi lại OTP thì
+    //update cái mã OTP cũ thành mã mới chứ không tạo thêm bản ghi mới nữa
+    return this.prismaService.verificationCode.upsert({
+      //Tìm thằng đó dựa trên email
+      where: {
+        email: payload.email,
+        type: payload.type,
+      },
+      //Nếu chưa tồn tại thì tạo mới
+      create: payload,
+      //Có rồi đã tồn tại thằng đó với email unique thì update
+      //sẽ update lại code và expiresAt
+      update: {
+        code: payload.code,
+        expiresAt: payload.expiresAt,
+      },
     })
   }
 }
