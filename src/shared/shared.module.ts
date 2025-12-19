@@ -8,10 +8,11 @@ import { AuthenticationGuard } from './guards/authentication.guard'
 import { APP_GUARD } from '@nestjs/core'
 import { PrismaService } from './services/prisma.service'
 import { SharedUserRepository } from './repositories/shared-user.repo'
+import { EmailService } from './services/email.service'
 //File này mình sẽ để chế độ global cho toàn app thấy được luôn
 //mình sẽ import services vào đây
 
-const sharedServices = [PrismaService, HashingService, TokenService, SharedUserRepository]
+const sharedServices = [PrismaService, HashingService, TokenService, SharedUserRepository, EmailService]
 
 @Global()
 @Module({
