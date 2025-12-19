@@ -9,6 +9,7 @@ import { addMilliseconds } from 'date-fns'
 import ms, { StringValue } from 'ms'
 import envConfig from 'src/shared/config'
 import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
+import { EmailService } from 'src/shared/services/email.service'
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,8 @@ export class AuthService {
     private readonly authRepository: AuthRepository,
     // Repository shared dùng chung cho nhiều module
     private readonly sharedUserRepository: SharedUserRepository,
+    // Email service
+    private readonly emailService: EmailService,
   ) {}
   //**register phải dùng async vì nó gọi đến các hàm bất đồng bộ
   //**dùng async-await thì dùng try-catch
@@ -111,6 +114,23 @@ export class AuthService {
       //nghĩa là vd "5m" => 300000 ms
       expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN as StringValue)),
     })
+    //4. Gửi mã OTP vào email của user
+    console.log(`OTP code for ${body.email}: ${code}`)
+    const { error } = await this.emailService.sendOTP({
+      email: body.email,
+      code: code,
+    })
+
+    if (error) {
+      console.log(error)
+      throw new UnprocessableEntityException([
+        {
+          message: 'Failed to send OTP email',
+          path: 'code',
+        },
+      ])
+    }
+
     return verificationCode
   }
 }

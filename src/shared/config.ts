@@ -34,6 +34,8 @@ const configSchema = z.object({
   ADMIN_EMAIL: z.string(),
   ADMIN_PHONE_NUMBER: z.string(),
   OTP_EXPIRES_IN: z.string(),
+  RESEND_API_KEY: z.string(),
+  RESEND_EMAIL_SEND_TO: z.string(),
 })
 
 //Thằng này sẽ parse obj process.env dựa trên schema đã định nghĩa
