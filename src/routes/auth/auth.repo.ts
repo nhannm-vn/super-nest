@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/shared/services/prisma.service'
 import { RegisterBodyType, VerificationCodeType } from './auth.model'
 import { UserType } from 'src/shared/models/shared-user.model'
+import { TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant'
 
 //Thực chất thì thằng này là service nhưng mình tách riêng ra để dễ quản lý
 //Mấy thằng nào mà service để gọi theo dependency injection thì phải có @Injectable()
@@ -17,7 +18,7 @@ export class AuthRepository {
   constructor(private readonly prismaService: PrismaService) {}
   //Type user khi tạo mới sẽ bỏ confirmPassword và thêm roleId
   async createUser(
-    user: Omit<RegisterBodyType, 'confirmPassword'> & Pick<UserType, 'roleId'>,
+    user: Omit<RegisterBodyType, 'confirmPassword' | 'code'> & Pick<UserType, 'roleId'>,
   ): Promise<Omit<UserType, 'password' | 'totpSecret'>> {
     return this.prismaService.user.create({
       data: user,
@@ -31,7 +32,9 @@ export class AuthRepository {
   }
 
   // Tạo verify otp, repo này chỉ chuyên về thao tác với db, gọi tới prismaService
-  async createVerificationCode(payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>) {
+  async createVerificationCode(
+    payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>,
+  ): Promise<VerificationCodeType> {
     //**Mình phải xử lí trường hợp nếu như người dùng gửi lại OTP thì
     //update cái mã OTP cũ thành mã mới chứ không tạo thêm bản ghi mới nữa
     return this.prismaService.verificationCode.upsert({
@@ -48,6 +51,21 @@ export class AuthRepository {
         code: payload.code,
         expiresAt: payload.expiresAt,
       },
+    })
+  }
+  // Tìm verify otp dựa trên các giá trị unique
+  async findUniqueVerificationCode(
+    uniqueValue:
+      | { email: string }
+      | { id: number }
+      | {
+          email: string
+          code: string
+          type: TypeOfVerificationCodeType
+        },
+  ): Promise<VerificationCodeType | null> {
+    return this.prismaService.verificationCode.findUnique({
+      where: uniqueValue,
     })
   }
 }
