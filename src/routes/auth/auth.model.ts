@@ -16,6 +16,10 @@ export const RegisterBodySchema = UserSchema.pick({
 })
   .extend({
     confirmPassword: z.string().min(6).max(100),
+    //Thì khi đăng ký ngoài confirmPassword thì còn có otp gửi lên thêm để tiến hành verify tài khoản
+    //nghĩa là khi người dùng muốn đăng ký thì phải nhập mã OTP đã gửi về email để xác thực
+    //và sau bước xác thực code mới được phép đăng ký, còn nếu không có code hoặc code sai thì không được đăng ký
+    code: z.string().length(6), // OTP
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {

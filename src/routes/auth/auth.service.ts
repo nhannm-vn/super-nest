@@ -8,6 +8,7 @@ import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { addMilliseconds } from 'date-fns'
 import ms, { StringValue } from 'ms'
 import envConfig from 'src/shared/config'
+import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
 
 @Injectable()
 export class AuthService {
@@ -24,6 +25,35 @@ export class AuthService {
   //**dùng async-await thì dùng try-catch
   async register(body: RegisterBodyType) {
     try {
+      // *Trước khi đăng ký thì phải kiểm tra mã OTP đã đúng chưa còn hạn không
+      // Tìm xem có mã OTP nào khớp với email, code, type không
+      const verificationCode = await this.authRepository.findUniqueVerificationCode({
+        email: body.email,
+        type: TypeOfVerificationCode.REGISTER,
+        code: body.code,
+      })
+      // Nếu như mà không có thì mình sẽ throw lỗi
+      if (!verificationCode) {
+        throw new UnprocessableEntityException([
+          {
+            message: 'Invalid OTP code',
+            path: 'code',
+          },
+        ])
+      }
+      // Kiểm tra nếu có mã OTP mà mã OTP đã hết hạn
+      //nếu mà thời gian hết hạn < thời gian hiện tại thì là hết hạn
+      if (verificationCode.expiresAt < new Date()) {
+        throw new UnprocessableEntityException([
+          {
+            message: 'OTP code has expired',
+            path: 'code',
+          },
+        ])
+      }
+
+      //*Sau khi đã verify OTP thành công thì tiến hành tạo user mới
+
       // Service lấy roleId của client từ bảng roles, nhờ có nó mà không phải query nhiều lần
       const clientRoleId = await this.rolesService.getClientRoleId()
       // hash password trước khi lưu vào db
@@ -38,6 +68,7 @@ export class AuthService {
         roleId: clientRoleId,
       })
     } catch (error) {
+      //Khi đăng ký tài khoản mới mà nó dùng email đã tồn tại rồi để đăng ký
       //NestJS đã có sẵn ConflictException (HTTP 409) để báo lỗi trùng dữ liệu.
       if (isUniqueConstraintPrismaError(error)) {
         throw new UnprocessableEntityException([
