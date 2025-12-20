@@ -38,6 +38,11 @@ export type UserTranslation = Prisma.UserTranslationModel
  */
 export type VerificationCode = Prisma.VerificationCodeModel
 /**
+ * Model Device
+ * 
+ */
+export type Device = Prisma.DeviceModel
+/**
  * Model RefreshToken
  * 
  */

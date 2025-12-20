@@ -388,6 +388,7 @@ export const ModelName = {
   User: 'User',
   UserTranslation: 'UserTranslation',
   VerificationCode: 'VerificationCode',
+  Device: 'Device',
   RefreshToken: 'RefreshToken',
   Permission: 'Permission',
   Role: 'Role',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "language" | "user" | "userTranslation" | "verificationCode" | "refreshToken" | "permission" | "role" | "product" | "productTranslation" | "category" | "categoryTranslation" | "variant" | "variantOption" | "sKU" | "brand" | "brandTranslation" | "cartItem" | "productSKUSnapshot" | "order" | "review" | "paymentTransaction" | "message"
+    modelProps: "language" | "user" | "userTranslation" | "verificationCode" | "device" | "refreshToken" | "permission" | "role" | "product" | "productTranslation" | "category" | "categoryTranslation" | "variant" | "variantOption" | "sKU" | "brand" | "brandTranslation" | "cartItem" | "productSKUSnapshot" | "order" | "review" | "paymentTransaction" | "message"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -718,6 +719,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.VerificationCodeCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.VerificationCodeCountAggregateOutputType> | number
+        }
+      }
+    }
+    Device: {
+      payload: Prisma.$DevicePayload<ExtArgs>
+      fields: Prisma.DeviceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DeviceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DeviceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        findFirst: {
+          args: Prisma.DeviceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DeviceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        findMany: {
+          args: Prisma.DeviceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>[]
+        }
+        create: {
+          args: Prisma.DeviceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        createMany: {
+          args: Prisma.DeviceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DeviceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>[]
+        }
+        delete: {
+          args: Prisma.DeviceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        update: {
+          args: Prisma.DeviceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        deleteMany: {
+          args: Prisma.DeviceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DeviceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DeviceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>[]
+        }
+        upsert: {
+          args: Prisma.DeviceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DevicePayload>
+        }
+        aggregate: {
+          args: Prisma.DeviceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDevice>
+        }
+        groupBy: {
+          args: Prisma.DeviceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeviceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DeviceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DeviceCountAggregateOutputType> | number
         }
       }
     }
@@ -2154,9 +2229,23 @@ export const VerificationCodeScalarFieldEnum = {
 export type VerificationCodeScalarFieldEnum = (typeof VerificationCodeScalarFieldEnum)[keyof typeof VerificationCodeScalarFieldEnum]
 
 
+export const DeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  userAgent: 'userAgent',
+  ip: 'ip',
+  lastActive: 'lastActive',
+  createdAt: 'createdAt',
+  isActive: 'isActive'
+} as const
+
+export type DeviceScalarFieldEnum = (typeof DeviceScalarFieldEnum)[keyof typeof DeviceScalarFieldEnum]
+
+
 export const RefreshTokenScalarFieldEnum = {
   token: 'token',
   userId: 'userId',
+  deviceId: 'deviceId',
   expiresAt: 'expiresAt',
   createdAt: 'createdAt'
 } as const
@@ -2515,6 +2604,13 @@ export type ListEnumVerificationCodeTypeFieldRefInput<$PrismaModel> = FieldRefIn
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'HTTPMethod'
  */
 export type EnumHTTPMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HTTPMethod'>
@@ -2525,13 +2621,6 @@ export type EnumHTTPMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'HTTPMethod[]'
  */
 export type ListEnumHTTPMethodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HTTPMethod[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -2661,6 +2750,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   userTranslation?: Prisma.UserTranslationOmit
   verificationCode?: Prisma.VerificationCodeOmit
+  device?: Prisma.DeviceOmit
   refreshToken?: Prisma.RefreshTokenOmit
   permission?: Prisma.PermissionOmit
   role?: Prisma.RoleOmit
