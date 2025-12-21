@@ -1,7 +1,7 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common'
 import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
-import { RegisterBodyType, SendOTPBodyType } from './auth.model'
+import { LoginBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model'
 import { AuthRepository } from './auth.repo'
 import { RolesService } from './roles.service'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
@@ -10,10 +10,15 @@ import ms, { StringValue } from 'ms'
 import envConfig from 'src/shared/config'
 import { TypeOfVerificationCode } from 'src/shared/constants/auth.constant'
 import { EmailService } from 'src/shared/services/email.service'
+import { TokenService } from 'src/shared/services/token.service'
+import { AccessTokenPayloadCreate } from 'src/shared/types/jwt.type'
 
 @Injectable()
 export class AuthService {
   constructor(
+    // Generate token JWT
+    private readonly tokenService: TokenService,
+    // Giúp mình hash và so sánh mật khẩu
     private readonly hashingService: HashingService,
     // Giúp mình không phải query roleId mỗi lần đăng ký client
     private readonly rolesService: RolesService,
@@ -132,5 +137,77 @@ export class AuthService {
     }
 
     return verificationCode
+  }
+
+  async login(body: LoginBodyType & { userAgent: string; ip: string }) {
+    // 1. Tìm user dựa theo email
+    //Mình không chỉ tìm user mà còn include cả role để có được roleName luôn
+    //nên không xài sharedUserRepository được
+    const user = await this.authRepository.findUniqueUserIncludeRole({ email: body.email })
+    // Nếu không tìm thấy user thì báo lỗi
+    if (!user) {
+      throw new UnprocessableEntityException([
+        {
+          message: 'Email not exist in system',
+          path: 'email',
+        },
+      ])
+    }
+
+    // Kiểm tra mật khẩu có khớp không
+    // 2. So sánh mật khẩu gửi lên với mật khẩu đã hash trong db
+    const isPasswordMatch = await this.hashingService.compare(body.password, user.password)
+    // Nếu mật khẩu không khớp thì báo lỗi
+    if (!isPasswordMatch) {
+      throw new UnprocessableEntityException([
+        {
+          message: 'Password is incorrect',
+          path: 'password',
+        },
+      ])
+    }
+
+    //Sau khi verify email và mật khẩu đúng thì tiến hành tạo record device
+    const device = await this.authRepository.createDevice({
+      userId: user.id,
+      userAgent: body.userAgent,
+      ip: body.ip,
+    })
+
+    //3. Nếu email tồn tại và mật khẩu đúng thì tạo token (access & refresh)
+    const tokens = await this.generateTokens({
+      userId: user.id,
+      roleId: user.roleId,
+      roleName: user.role.name,
+      deviceId: device.id,
+    })
+
+    return tokens
+  }
+
+  async generateTokens({ userId, deviceId, roleId, roleName }: AccessTokenPayloadCreate) {
+    // Song song tạo cả 2 token access và refresh
+    const [accessToken, refreshToken] = await Promise.all([
+      this.tokenService.signAccessToken({
+        userId,
+        deviceId,
+        roleId,
+        roleName,
+      }),
+      this.tokenService.signRefreshToken({
+        userId,
+      }),
+    ])
+    // Decode refresh token để lấy thông tin về thời gian hết hạn
+    const decodeRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
+    // Lưu refresh token vào db
+    await this.authRepository.createRefreshToken({
+      token: refreshToken,
+      userId,
+      expiresAt: new Date(decodeRefreshToken.exp * 1000), //exp là thời gian tính theo giây nên phải nhân 1000 để thành ms
+      deviceId: 1, //TODO: sau này sẽ lấy deviceId từ request
+    })
+
+    return { accessToken, refreshToken }
   }
 }
