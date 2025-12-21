@@ -4,6 +4,7 @@ import { compare, hash } from 'bcrypt'
 const saltRounds = 10
 
 //File này chứa service để hash mk và so sánh mk
+//dựa trên thư viện bcrypt
 
 @Injectable()
 export class HashingService {

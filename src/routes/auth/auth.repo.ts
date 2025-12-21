@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/shared/services/prisma.service'
-import { RegisterBodyType, VerificationCodeType } from './auth.model'
+import { DeviceType, RegisterBodyType, RoleType, VerificationCodeType } from './auth.model'
 import { UserType } from 'src/shared/models/shared-user.model'
 import { TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant'
+import { RefreshToken } from 'src/generated/prisma/client'
 
 //Thực chất thì thằng này là service nhưng mình tách riêng ra để dễ quản lý
 //Mấy thằng nào mà service để gọi theo dependency injection thì phải có @Injectable()
@@ -30,7 +31,6 @@ export class AuthRepository {
       },
     })
   }
-
   // Tạo verify otp, repo này chỉ chuyên về thao tác với db, gọi tới prismaService
   async createVerificationCode(
     payload: Pick<VerificationCodeType, 'email' | 'code' | 'type' | 'expiresAt'>,
@@ -66,6 +66,42 @@ export class AuthRepository {
   ): Promise<VerificationCodeType | null> {
     return this.prismaService.verificationCode.findUnique({
       where: uniqueValue,
+    })
+  }
+  // Lưu refresh token vào db
+  async createRefreshToken(data: {
+    token: string
+    userId: number
+    expiresAt: Date
+    deviceId: number
+  }): Promise<RefreshToken> {
+    return this.prismaService.refreshToken.create({
+      data,
+    })
+  }
+
+  // Tạo record device
+  async createDevice(
+    data: Pick<DeviceType, 'userId' | 'userAgent' | 'ip'> & Partial<Pick<DeviceType, 'isActive' | 'lastActive'>>,
+  ) {
+    return this.prismaService.device.create({
+      data,
+    })
+  }
+
+  // Tìm user kèm role name dựa trên các giá trị unique
+  //mình sẽ tìm ra user nhưng lúc trả về thì thêm cho nó role name
+  async findUniqueUserIncludeRole(uniqueObject: { email: string } | { id: number }): Promise<
+    | (UserType & {
+        role: RoleType
+      })
+    | null
+  > {
+    return this.prismaService.user.findUnique({
+      where: uniqueObject,
+      include: {
+        role: true,
+      },
     })
   }
 }
