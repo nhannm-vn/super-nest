@@ -188,6 +188,7 @@ export class AuthService {
   async generateTokens({ userId, deviceId, roleId, roleName }: AccessTokenPayloadCreate) {
     // Song song tạo cả 2 token access và refresh
     const [accessToken, refreshToken] = await Promise.all([
+      //Các thông tin truyền vào paload
       this.tokenService.signAccessToken({
         userId,
         deviceId,
@@ -205,7 +206,7 @@ export class AuthService {
       token: refreshToken,
       userId,
       expiresAt: new Date(decodeRefreshToken.exp * 1000), //exp là thời gian tính theo giây nên phải nhân 1000 để thành ms
-      deviceId: 1, //TODO: sau này sẽ lấy deviceId từ request
+      deviceId,
     })
 
     return { accessToken, refreshToken }
