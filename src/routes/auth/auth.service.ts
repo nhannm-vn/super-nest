@@ -1,7 +1,7 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common'
+import { HttpException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
 import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
-import { LoginBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model'
+import { LoginBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model'
 import { AuthRepository } from './auth.repo'
 import { RolesService } from './roles.service'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
@@ -210,5 +210,57 @@ export class AuthService {
     })
 
     return { accessToken, refreshToken }
+  }
+
+  //Hàm refresh token
+  async refreshToken({ refreshToken, ip, userAgent }: RefreshTokenBodyType & { userAgent: string; ip: string }) {
+    try {
+      //1. Kiểm tra token có đúng và hợp lệ hay không
+      //nếu decode được nghĩa là token đúng và hợp lệ
+      const { userId } = await this.tokenService.verifyRefreshToken(refreshToken)
+      //2. Kiểm tra refreshToken có tồn tại trong database không
+      const refreshTokenInDb = await this.authRepository.findUniqueRefreshTokenIncludeUserRole({
+        token: refreshToken,
+      })
+
+      if (!refreshTokenInDb) {
+        //Trường hợp đã refreshToken rồi hãy thông báo cho user biết
+        //refreshToken đã bị đánh cắp (nghĩa là refreshToken của họ không còn trong db)
+        throw new UnauthorizedException('Refresh token has been revoked')
+      }
+
+      const {
+        deviceId,
+        user: {
+          roleId,
+          role: { name: roleName },
+        },
+      } = refreshTokenInDb
+
+      //3. Cập nhật device
+      const $updateDevice = this.authRepository.updateDevice(deviceId, {
+        ip,
+        userAgent,
+      })
+
+      //4. Tiến hành xóa token cũ
+      const $deleteRefreshToken = this.authRepository.deleteRefreshToken({ token: refreshToken })
+
+      //5. Tiến hành tạo mới access_token và refresh_token
+      const $tokens = this.generateTokens({ userId, deviceId, roleId, roleName })
+      //Chạy song song các thao tác
+      //Nghiã là cách viết này giúp cho 3 thao tác trên chạy cùng lúc không phải chờ lần lượt
+      //Thay vì mình await lần lượt thì lấy biến hứng promise
+      const [, , tokens] = await Promise.all([$updateDevice, $deleteRefreshToken, $tokens])
+      return tokens
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Những cái error mà chúng ta throw ra đều là instanceof HttpException
+      if (error instanceof HttpException) {
+        throw error
+      }
+      //Dành cho các lỗi chung chung
+      throw new UnauthorizedException()
+    }
   }
 }
