@@ -1,5 +1,14 @@
 import { createZodDto } from 'nestjs-zod'
-import { LoginBodySchema, LoginResSchema, RegisterBodySchema, RegisterResSchema, SendOTPBodySchema } from './auth.model'
+import {
+  LoginBodySchema,
+  LoginResSchema,
+  LogoutBodySchema,
+  RefreshTokenBodySchema,
+  RefreshTokenResSchema,
+  RegisterBodySchema,
+  RegisterResSchema,
+  SendOTPBodySchema,
+} from './auth.model'
 
 //Serialize dữ liệu User trả về cho client
 //đối với Serialize thì không cần .email các kiểu
@@ -57,3 +66,9 @@ export class SendOTPBodyDTO extends createZodDto(SendOTPBodySchema) {}
 export class LoginBodyDTO extends createZodDto(LoginBodySchema) {}
 //Đinhh nghĩa DTO cho dữ liệu trả về sau khi login
 export class LoginResDTO extends createZodDto(LoginResSchema) {}
+//Định nghĩa DTO cho refresh token body
+export class RefreshTokenBodyDTO extends createZodDto(RefreshTokenBodySchema) {}
+//Định nghĩa DTO cho dữ liệu trả về sau khi refresh token
+export class RefreshTokenResDTO extends createZodDto(RefreshTokenResSchema) {}
+//Định nghĩa DTO cho dữ liệu logout body
+export class LogoutBodyDTO extends createZodDto(LogoutBodySchema) {}

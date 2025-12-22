@@ -32,15 +32,11 @@ export const RegisterBodySchema = UserSchema.pick({
     }
   })
 
-export type RegisterBodyType = z.infer<typeof RegisterBodySchema>
-
 // Định nghĩa schema cho dữ liệu trả về sau khi đăng ký(Serialize)
 export const RegisterResSchema = UserSchema.omit({
   password: true,
   totpSecret: true,
 })
-
-export type RegisterResType = z.infer<typeof RegisterResSchema>
 
 // Đinh nghĩa schema cho Verification Body OTP khi đăng ký
 // Định nghĩa chung
@@ -53,15 +49,11 @@ export const VerificationCodeSchema = z.object({
   createdAt: z.date(),
 })
 
-export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>
-
 // Định nghĩa schema cho body gửi OTP, nghĩa là người dùng gửi lên gì để nhận OTP
 export const SendOTPBodySchema = VerificationCodeSchema.pick({
   email: true,
   type: true,
 }).strict()
-
-export type SendOTPBodyType = z.infer<typeof SendOTPBodySchema>
 
 //Tạo model Login
 export const LoginBodySchema = UserSchema.pick({
@@ -69,15 +61,11 @@ export const LoginBodySchema = UserSchema.pick({
   password: true,
 }).strict()
 
-export type LoginBodyType = z.infer<typeof LoginBodySchema>
-
 //Tạo model trả về sau khi login thành công
 export const LoginResSchema = z.object({
   accessToken: z.string(),
   refreshToken: z.string(),
 })
-
-export type LoginResType = z.infer<typeof LoginResSchema>
 
 //Tạo schema cho body gửi lên thực hiện chức năng refresh token
 export const RefreshTokenBodySchema = z
@@ -86,12 +74,8 @@ export const RefreshTokenBodySchema = z
   })
   .strict()
 
-export type RefreshTokenBodyType = z.infer<typeof RefreshTokenBodySchema>
-
 //Tạo schema cho dữ liệu trả về sau khi thực hiện refresh token
 export const RefreshTokenResSchema = LoginResSchema
-
-export type RefreshTokenResType = LoginResType
 
 // Tạo schema cho device
 export const DeviceSchema = z.object({
@@ -104,7 +88,14 @@ export const DeviceSchema = z.object({
   isActive: z.boolean(),
 })
 
-export type DeviceType = z.infer<typeof DeviceSchema>
+// Tạo schema cho refresh token
+export const RefreshTokenSchema = z.object({
+  token: z.string(),
+  userId: z.number(),
+  deviceId: z.number(),
+  expiresAt: z.date(),
+  createdAt: z.date(),
+})
 
 // Tạo schema cho Role
 export const RoleSchema = z.object({
@@ -119,4 +110,18 @@ export const RoleSchema = z.object({
   updatedAt: z.date(),
 })
 
+// Tạo schema cho logout body
+export const LogoutBodySchema = RefreshTokenBodySchema
+
 export type RoleType = z.infer<typeof RoleSchema>
+export type RegisterBodyType = z.infer<typeof RegisterBodySchema>
+export type RegisterResType = z.infer<typeof RegisterResSchema>
+export type VerificationCodeType = z.infer<typeof VerificationCodeSchema>
+export type SendOTPBodyType = z.infer<typeof SendOTPBodySchema>
+export type LoginBodyType = z.infer<typeof LoginBodySchema>
+export type LoginResType = z.infer<typeof LoginResSchema>
+export type RefreshTokenBodyType = z.infer<typeof RefreshTokenBodySchema>
+export type RefreshTokenResType = LoginResType
+export type DeviceType = z.infer<typeof DeviceSchema>
+export type RefreshTokenType = z.infer<typeof RefreshTokenSchema>
+export type LogoutBodyType = RefreshTokenBodyType

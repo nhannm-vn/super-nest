@@ -14,11 +14,11 @@ export interface RefreshTokenPayloadCreate {
 export interface AccessTokenPayloadDecode extends AccessTokenPayloadCreate {
   exp: number
   iat: number
-  jti: string
+  uuid: string
 }
 
 export interface RefreshTokenPayloadDecode extends RefreshTokenPayloadCreate {
   exp: number
   iat: number
-  jti: string
+  uuid: string
 }
