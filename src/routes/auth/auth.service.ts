@@ -111,7 +111,7 @@ export class AuthService {
     //2. Tạo mã OTP
     const code = generateOTP()
     //3. Lưu mã OTP vào database, gọi tới repository để thao tác với db
-    const verificationCode = await this.authRepository.createVerificationCode({
+    await this.authRepository.createVerificationCode({
       email: body.email,
       code,
       type: body.type,
@@ -136,7 +136,7 @@ export class AuthService {
       ])
     }
 
-    return verificationCode
+    return { message: 'OTP has been sent to your email' }
   }
 
   async login(body: LoginBodyType & { userAgent: string; ip: string }) {
