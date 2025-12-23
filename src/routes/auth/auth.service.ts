@@ -1,5 +1,5 @@
 import { HttpException, Injectable, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common'
-import { generateOTP, isUniqueConstraintPrismaError } from 'src/shared/helpers'
+import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } from 'src/shared/helpers'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { LoginBodyType, RefreshTokenBodyType, RegisterBodyType, SendOTPBodyType } from './auth.model'
 import { AuthRepository } from './auth.repo'
@@ -258,6 +258,28 @@ export class AuthService {
       // Những cái error mà chúng ta throw ra đều là instanceof HttpException
       if (error instanceof HttpException) {
         throw error
+      }
+      //Dành cho các lỗi chung chung
+      throw new UnauthorizedException()
+    }
+  }
+
+  async logout(refreshToken: string) {
+    try {
+      //1. Kiểm tra token có đúng và hợp lệ hay không
+      await this.tokenService.verifyRefreshToken(refreshToken)
+      //2. Xóa refreshToken trong database
+      const deletedRefreshToken = await this.authRepository.deleteRefreshToken({ token: refreshToken })
+      //3. Cập nhật device là đã logout(lúc logout thì sẽ không còn active nữa)
+      await this.authRepository.updateDevice(deletedRefreshToken.deviceId, {
+        isActive: false,
+      })
+      return { message: 'Logout successfully' }
+    } catch (error) {
+      //Trường hợp đã refreshToken rồi hãy thông báo cho user biết
+      //refreshToken đã bị đánh cắp (nghĩa là refreshToken của họ không còn trong db)
+      if (isNotFoundPrismaError(error)) {
+        throw new UnauthorizedException('Refresh token has been revoked')
       }
       //Dành cho các lỗi chung chung
       throw new UnauthorizedException()
