@@ -1,5 +1,6 @@
 import { createZodDto } from 'nestjs-zod'
 import {
+  GetAuthorizationUrlResSchema,
   LoginBodySchema,
   LoginResSchema,
   LogoutBodySchema,
@@ -72,3 +73,5 @@ export class RefreshTokenBodyDTO extends createZodDto(RefreshTokenBodySchema) {}
 export class RefreshTokenResDTO extends createZodDto(RefreshTokenResSchema) {}
 //Định nghĩa DTO cho dữ liệu logout body
 export class LogoutBodyDTO extends createZodDto(LogoutBodySchema) {}
+//Định nghĩa DTO cho dữ liệu url google trả về
+export class GoogleAuthorizationUrlResDTO extends createZodDto(GetAuthorizationUrlResSchema) {}
