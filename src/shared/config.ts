@@ -36,6 +36,10 @@ const configSchema = z.object({
   OTP_EXPIRES_IN: z.string(),
   RESEND_API_KEY: z.string(),
   RESEND_EMAIL_SEND_TO: z.string(),
+  GOOGLE_CLIENT_ID: z.string(),
+  GOOGLE_CLIENT_SECRET: z.string(),
+  GOOGLE_REDIRECT_URI: z.string(),
+  GOOGLE_CLIENT_REDIRECT_URI: z.string(),
 })
 
 //Thằng này sẽ parse obj process.env dựa trên schema đã định nghĩa
